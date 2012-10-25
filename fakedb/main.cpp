@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <list>
 #include <ctime>
+#include <sys/time.h>
 
 #include "schema.h"
 #include "data_migrate.h"
@@ -12,11 +13,17 @@
 
 using namespace std;
 
-
+/*
 ostream &operator<<(ostream &output, const warehouse &o)
 {
    output << o.w_id << ' ' << o.w_name << ' ' << o.w_zip << endl;
    return output;
+}*/
+
+void display_warehouse(const warehouse w)
+{
+	printf("%d\t%s\t%s\n",w.w_id, w.w_name, w.w_zip);
+	return;
 }
 
 int warehouses=5;
@@ -35,58 +42,24 @@ int main(int argc, char* argv[]) {
 
 	//while(1) {
 	int choice;
-
+	timeval start_time, end_time, time_taken;
 
 	list<warehouse>::iterator i;
 
 	for(i=warehouse_list.begin(); i !=warehouse_list.end(); ++i)
-		cout << *i << " "; // print with overloaded operator
+		display_warehouse(*i);
+		//cout << *i << " "; // print with overloaded operator
 
-	scanf("%d",&choice);
-
+	gettimeofday(&start_time,NULL);
 	for(double i=0;i<1000;i++)
 		newOrderRandom(time(NULL), random()%warehouses+1);
-/*
-		switch(choice) {
-			case 1: printf("\nWhich table to print?\n");
-				printf("1. customer\n");
-				printf("2. district\n");
-				printf("3. history\n");
-				printf("4. item\n");
-				printf("5. neworder\n");
-				printf("6. order\n");
-				printf("7. orderline\n");
-				printf("8. stock\n");
-				printf("9. warehouse\n");
-				scanf("%d",&choice);
+	gettimeofday(&end_time,NULL);
 
-					switch(choice) {
-						case 1: display_customer();
-							break;
-						case 2: display_district();
-							break;
-						case 3: display_history();
-							break;
-						case 4: display_item();
-							break;
-						case 5: display_neworder();
-							break;
-						case 6: display_order();
-							break;
-						case 7: display_orderline();
-							break;
-						case 8: display_stock();
-							break;
-						case 9: display_warehouse();
-							break;
-						default: printf("Wrong Option\n");
-					}
-				break;
-			case 2: return 0;
-			default: printf("Wrong Option\n");
-		}
-	}
+	time_taken.tv_sec = end_time.tv_sec - start_time.tv_sec;
+	time_taken.tv_usec = end_time.tv_usec - start_time.tv_usec;
 
-*/
+	cout << "Time Taken " << time_taken.tv_sec <<"s" << time_taken.tv_usec <<"us\n";
+	cout << "newOrder operations per second" << 1000000/time_taken.tv_sec;
+
 	return 0;
 }

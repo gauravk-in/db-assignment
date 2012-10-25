@@ -10,12 +10,12 @@
 class warehouse {
    public:
       int w_id;                  // integer not null,
-      char w_name[10];				// varchar(10) not null,
-      char w_street_1[20];			// varchar(20) not null,
-      char w_street_2[20];			// varchar(20) not null,
-      char w_city[20];				// varchar(20) not null,
-      char w_state[2];				// varchar(2) not null,
-      char w_zip[9];			    	// varchar(9) not null,
+      char w_name[11];				// varchar(10) not null,
+      char w_street_1[21];			// varchar(20) not null,
+      char w_street_2[21];			// varchar(20) not null,
+      char w_city[21];				// varchar(20) not null,
+      char w_state[3];				// varchar(2) not null,
+      char w_zip[10];			    	// varchar(9) not null,
       uint64_t w_tax;					
       uint64_t w_ytd;
 
@@ -26,12 +26,12 @@ class district {
    public:
       int d_id;
       int d_w_id;
-      char d_name[10];
-      char d_street_1[20];
-      char d_street_2[20];
-      char d_city[20];
-      char d_state[2];
-      char d_zip[9];
+      char d_name[11];
+      char d_street_1[21];
+      char d_street_2[21];
+      char d_city[21];
+      char d_state[3];
+      char d_zip[10];
       uint64_t d_tax;
       uint64_t d_ytd;
       int d_next_o_id;
@@ -46,24 +46,24 @@ class customer {
       int c_id;
       int c_d_id;
       int c_w_id;
-      char c_first[16];
-      char c_middle[2];
-      char c_last[16];
-      char c_street_1[20];
-      char c_street_2[20];
-      char c_city[20];
-      char c_state[2];
-      char c_zip[9];
-      char c_phone[16];
+      char c_first[17];
+      char c_middle[3];
+      char c_last[17];
+      char c_street_1[21];
+      char c_street_2[21];
+      char c_city[21];
+      char c_state[3];
+      char c_zip[10];
+      char c_phone[17];
       uint64_t c_since;
-      char c_credit[2];
+      char c_credit[3];
       uint64_t c_credit_lim;
       uint64_t c_discount;
       uint64_t c_balance;
       uint64_t c_ytd_paymenr;
       uint64_t c_payment_cnt;
       uint64_t c_delivery_cnt;
-      char c_data[500];
+      char c_data[501];
       //primary key (c_w_id,c_d_id,c_id)
 
       int parse(FILE **fp);
@@ -82,7 +82,7 @@ class history {
       int h_w_id;
       uint64_t h_date;
       uint64_t h_amount;
-      char h_data[24];
+      char h_data[25];
 
       int parse(FILE **fp);
 };
@@ -138,7 +138,7 @@ class orderline {
       uint64_t ol_delivery_d;
       uint64_t ol_quantity;
       uint64_t ol_amount;
-      char ol_dist_info[24];
+      char ol_dist_info[25];
       //primary key (ol_w_id,ol_d_id,ol_o_id,ol_number)
       
       orderline();
@@ -152,9 +152,9 @@ class item {
    public:
       int i_id;				// integer not null,
       int i_im_id;				// integer not null,
-      char i_name[24];				// varchar(24) not null,
+      char i_name[25];				// varchar(24) not null,
       uint64_t i_price;
-      char i_data[50];
+      char i_data[51];
       							// primary key (i_id)
       int parse(FILE **fp);
 };
@@ -164,20 +164,20 @@ class stock {
       int s_i_id;				// integer not null,
       int s_w_id;				// integer not null,
       uint64_t s_quantity;		// numeric(4,0) not null,
-      char s_dist_01[24];		// char(24) not null,
-      char s_dist_02[24];		// char(24) not null,
-      char s_dist_03[24];		// char(24) not null,
-      char s_dist_04[24];		// char(24) not null,
-      char s_dist_05[24];		// char(24) not null,
-      char s_dist_06[24];		// char(24) not null,
-      char s_dist_07[24];		// char(24) not null,
-      char s_dist_08[24];		// char(24) not null,
-      char s_dist_09[24];		// char(24) not null,
-      char s_dist_10[24];		// char(24) not null,
+      char s_dist_01[25];		// char(24) not null,
+      char s_dist_02[25];		// char(24) not null,
+      char s_dist_03[25];		// char(24) not null,
+      char s_dist_04[25];		// char(24) not null,
+      char s_dist_05[25];		// char(24) not null,
+      char s_dist_06[25];		// char(24) not null,
+      char s_dist_07[25];		// char(24) not null,
+      char s_dist_08[25];		// char(24) not null,
+      char s_dist_09[25];		// char(24) not null,
+      char s_dist_10[25];		// char(24) not null,
       uint64_t s_ytd;			// numeric(8,0) not null,
       uint64_t s_order_cnt;	// numeric(4,0) not null,
       uint64_t s_remote_cnt;	// numeric(4,0) not null,
-      char s_data[50];			// varchar(50) not null,
+      char s_data[51];			// varchar(50) not null,
       							// primary key (s_w_id,s_i_id)
       int parse(FILE **fp);
 };

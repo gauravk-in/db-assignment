@@ -106,7 +106,7 @@ void newOrderRandom(time_t now, int w_id) {
    int itemid[15];
    int qty[15];
 
-   printf("ol_cnt is %d\n",ol_cnt);
+   //printf("ol_cnt is %d\n",ol_cnt);
 
    for(int i=0;i<ol_cnt;i++) {
       if(urand(1,100) > 1)

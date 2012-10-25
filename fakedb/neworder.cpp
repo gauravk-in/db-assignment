@@ -11,7 +11,7 @@ void newOrder(int w_id, int d_id, int c_id, int items, int supware[15], int item
    list<customer>::iterator cust_iter;
    list<district>::iterator dist_iter;
 
-   printf("w_id is %d\n",w_id);
+   //printf("w_id is %d\n",w_id);
 
    for(ware_iter=warehouse_list.begin(); (ware_iter!=warehouse_list.end() && (ware_iter->w_id!=w_id)); ++ware_iter);
    for(cust_iter=customer_list.begin(); (cust_iter!=customer_list.end() && (cust_iter->c_w_id!=w_id && cust_iter->c_d_id!=d_id && cust_iter->c_id!=c_id)); ++cust_iter);
