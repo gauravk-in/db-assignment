@@ -58,8 +58,8 @@ int main(int argc, char* argv[]) {
 	time_taken.tv_sec = end_time.tv_sec - start_time.tv_sec;
 	time_taken.tv_usec = end_time.tv_usec - start_time.tv_usec;
 
-	cout << "Time Taken " << time_taken.tv_sec <<"s" << time_taken.tv_usec <<"us\n";
-	cout << "newOrder operations per second" << 1000000/time_taken.tv_sec;
+	cout << "Time Taken " << time_taken.tv_sec << " s " << time_taken.tv_usec << " us\n";
+	cout << "newOrder operations per second are " << 1000/time_taken.tv_sec << endl;
 
 	return 0;
 }
