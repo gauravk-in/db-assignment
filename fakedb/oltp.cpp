@@ -2,7 +2,7 @@
 #include <ctime>                       //for time_t
 #include <string.h>                    //For strcpy and strcat
 #include <cstdlib>                     //for random
-#include "neworder.h"                  //for neworder()
+#include "include/neworder.h"                  //for neworder()
 #include <stdio.h>                     // DEBUG for printf
 
 using namespace std;

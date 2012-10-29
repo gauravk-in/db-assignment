@@ -9,6 +9,8 @@
 
 class warehouse {
    public:
+      static uint64_t count;
+      int insert_new();
       int w_id;                  // integer not null,
       char w_name[11];				// varchar(10) not null,
       char w_street_1[21];			// varchar(20) not null,
@@ -18,12 +20,16 @@ class warehouse {
       char w_zip[10];			    	// varchar(9) not null,
       uint64_t w_tax;					
       uint64_t w_ytd;
-
+      //primary key (w_id)
       int parse(FILE **fp);
 };
 
+
+
 class district {
    public:
+      static uint64_t count;
+      int insert_new();
       int d_id;
       int d_w_id;
       char d_name[11];
@@ -41,8 +47,12 @@ class district {
 
 
 
+
+
 class customer {
    public:
+      static uint64_t count;
+      int insert_new();
       int c_id;
       int c_d_id;
       int c_w_id;
@@ -71,10 +81,14 @@ class customer {
 
 
 
+
+
 //create index customer_wdl on customer(c_w_id,c_d_id,c_last,c_first);
 
 class history {
    public:
+      static uint64_t count;
+      int insert_new();
       int h_c_id;
       int h_c_d_id;
       int h_c_w_id;
@@ -83,14 +97,18 @@ class history {
       uint64_t h_date;
       uint64_t h_amount;
       char h_data[25];
-
+      
       int parse(FILE **fp);
 };
 
 
 
+
+
 class neworder {
    public:
+      static uint64_t count;
+      int insert_new();
       int no_o_id;
       int no_d_id;
       int no_w_id;
@@ -104,8 +122,12 @@ class neworder {
 
 
 
+
+
 class order {
    public:
+      static uint64_t count;
+      int insert_new();
       int o_id;
       int o_d_id;
       int o_w_id;
@@ -125,10 +147,14 @@ class order {
 
 
 
+
+
 //create index order_wdc on "order"(o_w_id,o_d_id,o_c_id,o_id);
 
 class orderline {
    public:
+      static uint64_t count;
+      int insert_new();
       int ol_o_id;
       int ol_d_id;
       int ol_w_id;
@@ -148,8 +174,12 @@ class orderline {
 
 
 
+
+
 class item {
    public:
+      static uint64_t count;
+      int insert_new();
       int i_id;				// integer not null,
       int i_im_id;				// integer not null,
       char i_name[25];				// varchar(24) not null,
@@ -159,8 +189,12 @@ class item {
       int parse(FILE **fp);
 };
 
+
+
 class stock {
    public:
+      static uint64_t count;
+      int insert_new();
       int s_i_id;				// integer not null,
       int s_w_id;				// integer not null,
       uint64_t s_quantity;		// numeric(4,0) not null,
@@ -181,6 +215,8 @@ class stock {
       							// primary key (s_w_id,s_i_id)
       int parse(FILE **fp);
 };
+
+
 
 
 

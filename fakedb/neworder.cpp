@@ -1,21 +1,30 @@
-#include "schema.h"
-#include "data_migrate.h"
+#include "include/schema.h"
+#include "include/data_migrate.h"
 
-#include <list>
+#include <vector>
+#include <map>
+#include <tuple>
 
 using namespace std;
 
 
 void newOrder(int w_id, int d_id, int c_id, int items, int supware[15], int itemid[15], int qty[15], uint64_t datetime) {
-   list<warehouse>::iterator ware_iter;
-   list<customer>::iterator cust_iter;
-   list<district>::iterator dist_iter;
+   //vector<warehouse>::iterator ware_vec_iter;
+   warehouse ware_vec_iter;
+   //vector<customer>::iterator cust_vec_iter;
+   customer cust_vec_iter;
+   //vector<district>::iterator dist_vec_iter;
+   district dist_vec_iter;
 
    //printf("w_id is %d\n",w_id);
 
-   for(ware_iter=warehouse_list.begin(); (ware_iter!=warehouse_list.end() && (ware_iter->w_id!=w_id)); ++ware_iter);
-   for(cust_iter=customer_list.begin(); (cust_iter!=customer_list.end() && (cust_iter->c_w_id!=w_id && cust_iter->c_d_id!=d_id && cust_iter->c_id!=c_id)); ++cust_iter);
-   for(dist_iter=district_list.begin(); cust_iter!=customer_list.end() && (dist_iter->d_w_id!=w_id && dist_iter->d_id!=d_id); ++dist_iter);
+   //for(ware_vec_iter=warehouse_vect.begin(); (ware_vec_iter!=warehouse_vect.end() && (ware_vec_iter.w_id!=w_id)); ++ware_vec_iter);
+   ware_vec_iter = warehouse_vect.at(warehouse_map.find(make_tuple(w_id))->second);
+   //printf("Warehouse found %d\n",ware_vec_iter.w_id);
+   //for(cust_vec_iter=customer_vect.begin(); (cust_vec_iter!=customer_vect.end() && (cust_vec_iter.c_w_id!=w_id && cust_vec_iter.c_d_id!=d_id && cust_vec_iter.c_id!=c_id)); ++cust_vec_iter);
+   cust_vec_iter = customer_vect.at(customer_map.find(make_tuple(w_id,d_id,c_id))->second);
+   //for(dist_vec_iter=district_vect.begin(); cust_vec_iter!=customer_vect.end() && (dist_vec_iter.d_w_id!=w_id && dist_vec_iter.d_id!=d_id); ++dist_vec_iter);
+   dist_vec_iter = district_vect.at(district_map.find(make_tuple(w_id,d_id))->second);
 
    int all_local = 1;
    for(int i=0;i<items;i++) {
@@ -23,59 +32,64 @@ void newOrder(int w_id, int d_id, int c_id, int items, int supware[15], int item
          all_local=0;
    }
 
-   int o_id=dist_iter->d_next_o_id; //d_next_o_id as o_id
+   int o_id=dist_vec_iter.d_next_o_id; //d_next_o_id as o_id
 
-   order *order_new=new order(o_id,d_id,w_id,c_id,datetime,0,items,all_local);
-   order_list.push_front(*order_new);
+   order order_new(o_id,d_id,w_id,c_id,datetime,0,items,all_local);
+   order_vect.push_back(order_new);
 
-   neworder *neworder_new=new neworder(o_id,d_id,w_id);
-   neworder_list.push_front(*neworder_new);
+   neworder neworder_new(o_id,d_id,w_id);
+   neworder_vect.push_back(neworder_new);
 
    for(int i=0;i<items;i++) {
-      list<item>::iterator item_iter;
-      list<stock>::iterator stock_iter;
-      for(item_iter=item_list.begin();item_iter!=item_list.end() && item_iter->i_id!=itemid[i];++item_iter);
-      for(stock_iter=stock_list.begin();stock_iter!=stock_list.end() && (stock_iter->s_w_id!=supware[i] && stock_iter->s_i_id!=itemid[i]);++stock_iter);
+      //vector<item>::iterator item_vec_iter;
+      item item_vec_iter;
+      //vector<stock>::iterator stock_vec_iter;
+      stock stock_vec_iter;
+
+      //for(item_vec_iter=item_vect.begin();item_vec_iter!=item_vect.end() && item_vec_iter.i_id!=itemid[i];++item_vec_iter);
+      item_vec_iter = item_vect.at(item_map.find(make_tuple(itemid[i]))->second);
+      //for(stock_vec_iter=stock_vect.begin();stock_vec_iter!=stock_vect.end() && (stock_vec_iter.s_w_id!=supware[i] && stock_vec_iter.s_i_id!=itemid[i]);++stock_vec_iter);
+      stock_vec_iter = stock_vect.at(stock_map.find(make_tuple(supware[i],itemid[i]))->second);
    
-      if(stock_iter->s_quantity > qty[i])
-         stock_iter->s_quantity = stock_iter->s_quantity - qty[i];
+      if(stock_vec_iter.s_quantity > qty[i])
+         stock_vec_iter.s_quantity = stock_vec_iter.s_quantity - qty[i];
       else
-         stock_iter->s_quantity = stock_iter->s_quantity + 91 - qty[i];
+         stock_vec_iter.s_quantity = stock_vec_iter.s_quantity + 91 - qty[i];
 
       if(supware[i] != w_id)
-         stock_iter->s_remote_cnt = stock_iter->s_remote_cnt +1;
+         stock_vec_iter.s_remote_cnt = stock_vec_iter.s_remote_cnt +1;
       else
-         stock_iter->s_order_cnt = stock_iter->s_order_cnt +1;
+         stock_vec_iter.s_order_cnt = stock_vec_iter.s_order_cnt +1;
 
-      uint64_t ol_amount=qty[i]*(item_iter->i_price)*(1.0+(ware_iter->w_tax)*(1.0-(cust_iter->c_discount)));
+      uint64_t ol_amount=qty[i]*(item_vec_iter.i_price)*(1.0+(ware_vec_iter.w_tax)*(1.0-(cust_vec_iter.c_discount)));
 
       char s_dist[25];
       switch(d_id) {
-         case 1: strcpy(stock_iter->s_dist_01,s_dist);
+         case 1: strcpy(stock_vec_iter.s_dist_01,s_dist);
             break;
-         case 2: strcpy(stock_iter->s_dist_02,s_dist);
+         case 2: strcpy(stock_vec_iter.s_dist_02,s_dist);
             break;
-         case 3: strcpy(stock_iter->s_dist_03,s_dist);
+         case 3: strcpy(stock_vec_iter.s_dist_03,s_dist);
             break;
-         case 4: strcpy(stock_iter->s_dist_04,s_dist);
+         case 4: strcpy(stock_vec_iter.s_dist_04,s_dist);
             break;
-         case 5: strcpy(stock_iter->s_dist_05,s_dist);
+         case 5: strcpy(stock_vec_iter.s_dist_05,s_dist);
             break;
-         case 6: strcpy(stock_iter->s_dist_06,s_dist);
+         case 6: strcpy(stock_vec_iter.s_dist_06,s_dist);
             break;
-         case 7: strcpy(stock_iter->s_dist_07,s_dist);
+         case 7: strcpy(stock_vec_iter.s_dist_07,s_dist);
             break;
-         case 8: strcpy(stock_iter->s_dist_08,s_dist);
+         case 8: strcpy(stock_vec_iter.s_dist_08,s_dist);
             break;
-         case 9: strcpy(stock_iter->s_dist_09,s_dist);
+         case 9: strcpy(stock_vec_iter.s_dist_09,s_dist);
             break;
-         case 10: strcpy(stock_iter->s_dist_10,s_dist);
+         case 10: strcpy(stock_vec_iter.s_dist_10,s_dist);
             break;
          default: break;
       }            
 
-      orderline *orderline_new=new orderline(o_id,d_id,w_id,i+1,itemid[i],supware[i],0,qty[i],ol_amount,s_dist);
-      orderline_list.push_front(*orderline_new);
+      orderline orderline_new(o_id,d_id,w_id,i+1,itemid[i],supware[i],0,qty[i],ol_amount,s_dist);
+      orderline_new.insert_new();
    }
 }
 

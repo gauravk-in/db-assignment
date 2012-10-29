@@ -3,13 +3,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <list>
+#include <vector>
 #include <ctime>
 #include <sys/time.h>
 
-#include "schema.h"
-#include "data_migrate.h"
-#include "oltp.h"
+#include "include/schema.h"
+#include "include/data_migrate.h"
+#include "include/oltp.h"
 
 using namespace std;
 
@@ -44,9 +44,9 @@ int main(int argc, char* argv[]) {
 	int choice;
 	timeval start_time, end_time, time_taken;
 
-	list<warehouse>::iterator i;
+	vector<warehouse>::iterator i;
 
-	for(i=warehouse_list.begin(); i !=warehouse_list.end(); ++i)
+	for(i=warehouse_vect.begin(); i !=warehouse_vect.end(); ++i)
 		display_warehouse(*i);
 		//cout << *i << " "; // print with overloaded operator
 
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 	time_taken.tv_usec = end_time.tv_usec - start_time.tv_usec;
 
 	cout << "Time Taken " << time_taken.tv_sec << " s " << time_taken.tv_usec << " us\n";
-	cout << "newOrder operations per second are " << 1000/time_taken.tv_sec << endl;
+	cout << "newOrder operations per second are " << 1000000/(time_taken.tv_sec*1000+time_taken.tv_usec/1000) << endl;
 
 	return 0;
 }
