@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "include/schema.h"
-//#include "data_migrate.h"
+#include "include/data_migrate.h"
 
 using namespace std;
 
@@ -23,23 +23,41 @@ char STOCK_TBL_FILE[40]="./../../tables/tpcc_stock.tbl";
 char WAREHOUSE_TBL_FILE[40]="./../../tables/tpcc_warehouse.tbl";
 
 vector<customer> customer_vect;
-map<tuple<int,int,int>, uint64_t> customer_map;				//primary key (c_w_id,c_d_id,c_id)
+//typedef map<tuple<int,int,int>, uint64_t> customer_map_t;
+customer_map_t customer_map;				//primary key (c_w_id,c_d_id,c_id)
+
 vector<district> district_vect;
-map<tuple<int,int>,uint64_t> district_map;					//primary key (d_w_id,d_id)
+//typedef map<tuple<int,int>,uint64_t> district_map_t;
+district_map_t district_map;					//primary key (d_w_id,d_id)
+
 vector<history> history_vect;
-//map<tuple<int>,uint64_t> history_map;						//primary_key ()
+//typedef map<tuple<int>,uint64_t> history_map_t;
+//history_map_t history_map;						//primary key ()
+
 vector<item> item_vect;
-map<tuple<int>,uint64_t> item_map;							// primary key (i_id)
+//typedef map<tuple<int>,uint64_t> item_map_t;
+item_map_t item_map;							//primary key (i_id)
+
 vector<neworder> neworder_vect;
-map<tuple<int,int,int>,uint64_t> neworder_map;				//primary key (no_w_id,no_d_id,no_o_id)
+//typedef map<tuple<int,int,int>,uint64_t> neworder_map_t;
+neworder_map_t neworder_map;				//primary key (no_w_id,no_d_id,no_o_id)
+
 vector<orderline> orderline_vect;
-map<tuple<int,int,int,int>,uint64_t> orderline_map;			//primary key (ol_w_id,ol_d_id,ol_o_id,ol_number)
+//typedef map<tuple<int,int,int,int>,uint64_t> orderline_map_t;
+orderline_map_t orderline_map;			//primary key (ol_w_id,ol_d_id,ol_o_id,ol_number)
+
 vector<order> order_vect;
-map<tuple<int,int,int>,uint64_t> order_map;					//primary key (o_w_id,o_d_id,o_id)
+//typedef map<tuple<int,int,int>,uint64_t> order_map_t;
+order_map_t order_map;					//primary key (o_w_id,o_d_id,o_id)
+
 vector<stock> stock_vect;
-map<tuple<int,int>,uint64_t> stock_map;						// primary key (s_w_id,s_i_id)
+//typedef map<tuple<int,int>,uint64_t> stock_map_t;
+stock_map_t stock_map;						//primary key (s_w_id,s_i_id)
+
 vector<warehouse> warehouse_vect;
-map<tuple<int>,uint64_t> warehouse_map;						//primary key (w_id)
+//typedef map<tuple<int>,uint64_t> warehouse_map_t;
+warehouse_map_t warehouse_map;						//primary key (w_id)
+
 
 int load_customer_from_file() {
 	FILE *customer_tbl;

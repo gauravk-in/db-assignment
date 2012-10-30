@@ -135,4 +135,61 @@ create transaction newOrder ( integer w_id, integer d_id, integer c_id, integer 
 
 */
 
+void delivery(int w_id, int o_carrier_id, uint64_t datetime)
+{
+   int d_id;
 
+   for(d_id=1; d_id <= 10; d_id++) {
+      int o_id;
+      order temp_order;
+      customer temp_customer;
+      neworder_map_t::iterator neworder_map_iter;
+
+      neworder_map_iter = neworder_map.lower_bound(make_tuple(w_id,d_id,0));
+      o_id=neworder_vect.at(neworder_map_iter->second).no_o_id;
+      neworder_vect.erase(neworder_vect.begin()+(neworder_map_iter->second));
+      neworder_map.erase(neworder_map_iter);
+
+      temp_order = order_vect.at(order_map.find(make_tuple(w_id, d_id, o_id))->second);
+      int o_ol_cnt = temp_order.o_ol_cnt;
+      int o_c_id = temp_order.o_c_id;
+      temp_order.o_carrier_id=o_carrier_id;
+
+      uint64_t ol_total=0;
+      int ol_number;
+      for(ol_number=1; ol_number<=temp_order.o_ol_cnt; ol_number++) {
+         orderline temp_orderline;
+         temp_orderline = orderline_vect.at(orderline_map.find(make_tuple(w_id,d_id,o_id,ol_number))->second);
+         ol_total=ol_total + temp_orderline.ol_amount;
+         temp_orderline.ol_delivery_d=datetime;
+      }
+
+      temp_customer = customer_vect.at(customer_map.find(make_tuple(w_id, d_id,o_c_id))->second);
+      temp_customer.c_balance=temp_customer.c_balance + ol_total;
+
+   }
+}
+
+/*
+create transaction delivery(integer w_id, integer o_carrier_id, timestamp datetime)
+{
+   forsequence (d_id between 1 and 10) {
+      select min(no_o_id) as o_id from neworder where no_w_id=w_id and no_d_id=d_id order by no_o_id else { continue; } -- ignore this district if no row found
+      delete from neworder where no_w_id=w_id and no_d_id=d_id and no_o_id=o_id;
+
+      select o_ol_cnt,o_c_id from "order" o where o_w_id=w_id and o_d_id=d_id and o.o_id=o_id;
+      update "order" set o_carrier_id=o_carrier_id where o_w_id=w_id and o_d_id=d_id and "order".o_id=o_id;
+
+      var numeric(6,2) ol_total=0;
+      forsequence (ol_number between 1 and o_ol_cnt) {
+         select ol_amount from orderline where ol_w_id=w_id and ol_d_id=d_id and ol_o_id=o_id and orderline.ol_number=ol_number;
+         ol_total=ol_total+ol_amount;
+         update orderline set ol_delivery_d=datetime where ol_w_id=w_id and ol_d_id=d_id and ol_o_id=o_id and orderline.ol_number=ol_number;
+      }
+
+      update customer set c_balance=c_balance+ol_total where c_w_id=w_id and c_d_id=d_id and c_id=o_c_id;
+   }
+
+   commit;
+};
+*/

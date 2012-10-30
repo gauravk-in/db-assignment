@@ -2,7 +2,7 @@
 #include <ctime>                       //for time_t
 #include <string.h>                    //For strcpy and strcat
 #include <cstdlib>                     //for random
-#include "include/neworder.h"                  //for neworder()
+#include "include/transactions.h"      //for neworder() and delivery()
 #include <stdio.h>                     // DEBUG for printf
 
 using namespace std;
@@ -156,7 +156,12 @@ create function void ostatRandom(integer w_id)
       execute ostatById(w_id,d_id,execute nurand(1023,1,3000));
    }
 };
-
+*/
+void deliveryRandom(time_t now, int w_id) {
+   int carrier_id=urand(1,10);
+   delivery(w_id,carrier_id,(uint64_t)now);
+}
+/*
 create function void deliveryRandom(timestamp now,integer w_id)
 {
    var integer carrier_id=execute urand(1,10);

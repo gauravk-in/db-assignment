@@ -3,6 +3,7 @@
 
 #include <ctime>
 
-void newOrderRandom(time_t now, int w_id);
+extern void newOrderRandom(time_t now, int w_id);
+extern void deliveryRandom(time_t now, int w_id);
 
 #endif //_OLTP_H_

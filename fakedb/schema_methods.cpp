@@ -20,6 +20,7 @@ int warehouse::insert_new() {
    count++;
 }
 
+
 int warehouse::parse(FILE **fp) {
    char token[25];
    int i,j;
@@ -86,6 +87,7 @@ int district::insert_new() {
    district_map.insert(make_pair(make_tuple(d_w_id,d_id), count));
    count++;
 }
+
 
 int district::parse(FILE **fp) {
    char token[25];
@@ -157,6 +159,7 @@ int customer::insert_new() {
    customer_map.insert(make_pair(make_tuple(c_w_id, c_d_id, c_id), count));
    count++;
 }
+
 
 int customer::parse(FILE **fp) {
    char token[501];
@@ -249,6 +252,7 @@ int history::insert_new() {
    count++;
 }
 
+
 int history::parse(FILE **fp) {
    char token[25];
    int i,j;
@@ -314,6 +318,7 @@ int neworder::insert_new() {
    count++;
 }
 
+
 int neworder::parse(FILE **fp) {
    char token[10];
    int i,j;
@@ -368,6 +373,7 @@ int order::insert_new() {
    order_map.insert(make_pair(make_tuple(o_w_id, o_d_id, o_id), count));
    count++;
 }
+
 
 int order::parse(FILE **fp) {
    char token[25];
@@ -433,6 +439,7 @@ int orderline::insert_new() {
    orderline_map.insert(make_pair(make_tuple(ol_w_id, ol_d_id, ol_o_id, ol_number), count));
    count++;
 }
+
 
 int orderline::parse(FILE **fp) {
    char token[25];
@@ -503,6 +510,7 @@ int item::insert_new() {
    count++;
 }
 
+
 int item::parse(FILE **fp) {
    char token[51];
    int i,j;
@@ -561,6 +569,7 @@ int stock::insert_new() {
    stock_map.insert(make_pair(make_tuple(s_w_id, s_i_id), count));
    count++;
 }
+
 
 int stock::parse(FILE **fp) {
    char token[51];
