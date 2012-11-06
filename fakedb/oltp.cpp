@@ -36,8 +36,8 @@ create function integer nurand(integer A,integer x,integer y)
    return ((((random%A)|(random%(y-x+1)+x))+42)%(y-x+1))+x;
 };
 */
-int nurand(int A, int x, int y) {
-   return ((((random()%A)|(random()%(y-x+1)+x))+42)%(y-x+1))+x;
+long int nurand(long int A, long int x, long int y) {
+   return ((((rand()%A)|(rand()%(y-x+1)+x))+42)%(y-x+1))+x;
 }
 
 /*
@@ -46,9 +46,9 @@ create function integer urand(integer min,integer max)
    return (random%(max-min+1))+min;
 };
 */
-int urand(int min, int max)
+long int urand(long int min, long int max)
 {
-      return (random()%(max-min+1))+min;
+      return (rand()%(max-min+1))+min;
 }
 
 /*
@@ -63,10 +63,10 @@ create function integer urandexcept(integer min,integer max,integer v)
 };
 */
 
-int urandexcept(int min, int max, int v) {
+long int urandexcept(long int min, long int max, long int v) {
    if(max<=min)
       return min;
-   int r=(random()%(max-min))+min;
+   long int r=(rand()%(max-min))+min;
    if(r>=v)
       return r+1;
    else
@@ -98,22 +98,22 @@ create function void newOrderRandom(timestamp now,integer w_id)
 };
 */
 void newOrderRandom(time_t now, int w_id) {
-   int d_id=urand(1,10);
-   int c_id=nurand(1023,1,3000);
-   int ol_cnt=urand(5,15);
+   long int d_id=urand(1,10);
+   long int c_id=nurand(1023,1,3000);
+   long int ol_cnt=urand(5,15);
 
-   int supware[15];
-   int itemid[15];
-   int qty[15];
+   long int supware[15];
+   long int itemid[15];
+   long int qty[15];
 
    //printf("ol_cnt is %d\n",ol_cnt);
 
-   for(int i=0;i<ol_cnt;i++) {
+   for(long int i=0;i<ol_cnt;i++) {
       if(urand(1,100) > 1)
          supware[i]=w_id;
       else
          supware[i]=urandexcept(1,warehouses,w_id);
-      itemid[i]=nurand(8191,1,100000);
+      itemid[i]=nurand(8191,1,10000);
       qty[i]=urand(1,10);
    }
    for(int i=ol_cnt;i<15;i++) {

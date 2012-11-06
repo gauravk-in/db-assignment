@@ -8,7 +8,7 @@
 using namespace std;
 
 
-void newOrder(int w_id, int d_id, int c_id, int items, int supware[15], int itemid[15], int qty[15], uint64_t datetime) {
+void newOrder(int w_id, int d_id, int c_id, int items, long int supware[15], long int itemid[15], long int qty[15], uint64_t datetime) {
    //vector<warehouse>::iterator ware_vec_iter;
    warehouse ware_vec_iter;
    //vector<customer>::iterator cust_vec_iter;
@@ -16,15 +16,18 @@ void newOrder(int w_id, int d_id, int c_id, int items, int supware[15], int item
    //vector<district>::iterator dist_vec_iter;
    district dist_vec_iter;
 
-   //printf("w_id is %d\n",w_id);
+   ////printf("w_id is %d\n",w_id);
 
    //for(ware_vec_iter=warehouse_vect.begin(); (ware_vec_iter!=warehouse_vect.end() && (ware_vec_iter.w_id!=w_id)); ++ware_vec_iter);
    ware_vec_iter = warehouse_vect.at(warehouse_map.find(make_tuple(w_id))->second);
-   //printf("Warehouse found %d\n",ware_vec_iter.w_id);
+   //printf("KUKU: %s:%s:%d\n",__FILE__,__func__,__LINE__);
+   ////printf("Warehouse found %d\n",ware_vec_iter.w_id);
    //for(cust_vec_iter=customer_vect.begin(); (cust_vec_iter!=customer_vect.end() && (cust_vec_iter.c_w_id!=w_id && cust_vec_iter.c_d_id!=d_id && cust_vec_iter.c_id!=c_id)); ++cust_vec_iter);
    cust_vec_iter = customer_vect.at(customer_map.find(make_tuple(w_id,d_id,c_id))->second);
+   //printf("KUKU: %s:%s:%d\n",__FILE__,__func__,__LINE__);
    //for(dist_vec_iter=district_vect.begin(); cust_vec_iter!=customer_vect.end() && (dist_vec_iter.d_w_id!=w_id && dist_vec_iter.d_id!=d_id); ++dist_vec_iter);
    dist_vec_iter = district_vect.at(district_map.find(make_tuple(w_id,d_id))->second);
+   //printf("KUKU: %s:%s:%d\n",__FILE__,__func__,__LINE__);
 
    int all_local = 1;
    for(int i=0;i<items;i++) {
@@ -48,8 +51,10 @@ void newOrder(int w_id, int d_id, int c_id, int items, int supware[15], int item
 
       //for(item_vec_iter=item_vect.begin();item_vec_iter!=item_vect.end() && item_vec_iter.i_id!=itemid[i];++item_vec_iter);
       item_vec_iter = item_vect.at(item_map.find(make_tuple(itemid[i]))->second);
+      //printf("KUKU: %s:%s:%d\n",__FILE__,__func__,__LINE__);
       //for(stock_vec_iter=stock_vect.begin();stock_vec_iter!=stock_vect.end() && (stock_vec_iter.s_w_id!=supware[i] && stock_vec_iter.s_i_id!=itemid[i]);++stock_vec_iter);
       stock_vec_iter = stock_vect.at(stock_map.find(make_tuple(supware[i],itemid[i]))->second);
+      //printf("KUKU: %s:%s:%d\n",__FILE__,__func__,__LINE__);
    
       if(stock_vec_iter.s_quantity > qty[i])
          stock_vec_iter.s_quantity = stock_vec_iter.s_quantity - qty[i];
@@ -146,8 +151,11 @@ void delivery(int w_id, int o_carrier_id, uint64_t datetime)
       neworder_map_t::iterator neworder_map_iter;
 
       neworder_map_iter = neworder_map.lower_bound(make_tuple(w_id,d_id,0));
+      if(neworder_map_iter->second >= neworder_vect.size()) {
+         return;
+      }
       o_id=neworder_vect.at(neworder_map_iter->second).no_o_id;
-      neworder_vect.erase(neworder_vect.begin()+(neworder_map_iter->second));
+      //neworder_vect.erase(neworder_vect.begin()+(neworder_map_iter->second));
       neworder_map.erase(neworder_map_iter);
 
       temp_order = order_vect.at(order_map.find(make_tuple(w_id, d_id, o_id))->second);

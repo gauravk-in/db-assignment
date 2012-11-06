@@ -1,5 +1,5 @@
 #include <iostream>
-#include <cstdlib>                     //for random
+#include <cstdlib>                     //for rand
 #include <stdint.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -12,6 +12,8 @@
 #include "include/oltp.h"
 
 using namespace std;
+
+#define no_iterations 1000000
 
 /*
 ostream &operator<<(ostream &output, const warehouse &o)
@@ -43,19 +45,20 @@ int main(int argc, char* argv[]) {
 	//while(1) {
 	int choice;
 	timeval start_time, end_time, time_taken;
-	vector<warehouse>::iterator i;
+	vector<warehouse>::iterator it;
 
-	for(i=warehouse_vect.begin(); i !=warehouse_vect.end(); ++i)
-		display_warehouse(*i);
+	for(it=warehouse_vect.begin(); it !=warehouse_vect.end(); ++it)
+		display_warehouse(*it);
 		//cout << *i << " "; // print with overloaded operator
 
 	gettimeofday(&start_time,NULL);
-	for(double i=0;i<1000;i++) {
-		choice = random()%10;
-		if(choice>0)
-			newOrderRandom(time(NULL), random()%warehouses+1);
+	for(unsigned long i=0;i<no_iterations;i++) {
+		srand(time(NULL));
+		choice = rand()%1000;
+		if(choice>100)
+			newOrderRandom(time(NULL), rand()%warehouses+1);
 		else
-			deliveryRandom(time(NULL), random()%warehouses+1);
+			deliveryRandom(time(NULL), rand()%warehouses+1);
 	}
 	gettimeofday(&end_time,NULL);
 
@@ -63,7 +66,9 @@ int main(int argc, char* argv[]) {
 	time_taken.tv_usec = end_time.tv_usec - start_time.tv_usec;
 
 	cout << "Time Taken " << time_taken.tv_sec << " s " << time_taken.tv_usec << " us\n";
-	cout << "newOrder operations per second are " << 1000000/(time_taken.tv_sec*1000+time_taken.tv_usec/1000) << endl;
+	unsigned long int tps;
+	tps=no_iterations*1000/(time_taken.tv_sec*1000+time_taken.tv_usec/1000);
+	cout << "newOrder operations per second are " << tps << endl;
 
 	return 0;
 }
