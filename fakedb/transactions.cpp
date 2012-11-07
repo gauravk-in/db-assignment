@@ -1,5 +1,8 @@
+#include <string.h>
+
 #include "include/schema.h"
 #include "include/data_migrate.h"
+#include "include/storage.h"
 
 #include <vector>
 #include <map>
@@ -94,7 +97,7 @@ void newOrder(int w_id, int d_id, int c_id, int items, long int supware[15], lon
       }            
 
       orderline orderline_new(o_id,d_id,w_id,i+1,itemid[i],supware[i],0,qty[i],ol_amount,s_dist);
-      orderline_new.insert_new();
+      orderline_new.insert();
    }
 }
 

@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "include/schema.h"
+#include "include/storage.h"
 #include "include/data_migrate.h"
 
 using namespace std;
@@ -22,43 +23,6 @@ char ORDER_TBL_FILE[40]="./../../tables/tpcc_order.tbl";
 char STOCK_TBL_FILE[40]="./../../tables/tpcc_stock.tbl";
 char WAREHOUSE_TBL_FILE[40]="./../../tables/tpcc_warehouse.tbl";
 
-vector<customer> customer_vect;
-//typedef map<tuple<int,int,int>, uint64_t> customer_map_t;
-customer_map_t customer_map;				//primary key (c_w_id,c_d_id,c_id)
-
-vector<district> district_vect;
-//typedef map<tuple<int,int>,uint64_t> district_map_t;
-district_map_t district_map;					//primary key (d_w_id,d_id)
-
-vector<history> history_vect;
-//typedef map<tuple<int>,uint64_t> history_map_t;
-//history_map_t history_map;						//primary key ()
-
-vector<item> item_vect;
-//typedef map<tuple<int>,uint64_t> item_map_t;
-item_map_t item_map;							//primary key (i_id)
-
-vector<neworder> neworder_vect;
-//typedef map<tuple<int,int,int>,uint64_t> neworder_map_t;
-neworder_map_t neworder_map;				//primary key (no_w_id,no_d_id,no_o_id)
-
-vector<orderline> orderline_vect;
-//typedef map<tuple<int,int,int,int>,uint64_t> orderline_map_t;
-orderline_map_t orderline_map;			//primary key (ol_w_id,ol_d_id,ol_o_id,ol_number)
-
-vector<order> order_vect;
-//typedef map<tuple<int,int,int>,uint64_t> order_map_t;
-order_map_t order_map;					//primary key (o_w_id,o_d_id,o_id)
-
-vector<stock> stock_vect;
-//typedef map<tuple<int,int>,uint64_t> stock_map_t;
-stock_map_t stock_map;						//primary key (s_w_id,s_i_id)
-
-vector<warehouse> warehouse_vect;
-//typedef map<tuple<int>,uint64_t> warehouse_map_t;
-warehouse_map_t warehouse_map;						//primary key (w_id)
-
-
 int load_customer_from_file() {
 	FILE *customer_tbl;
 
@@ -69,7 +33,7 @@ int load_customer_from_file() {
 		
 		if(temp_customer.parse(&customer_tbl)==0)
 		{
-			temp_customer.insert_new();
+			temp_customer.insert();
 		}
 		else
 		{
@@ -93,7 +57,7 @@ int load_district_from_file() {
 		
 		if(temp_district.parse(&district_tbl)==0)
 		{
-			temp_district.insert_new();
+			temp_district.insert();
 		}
 		else
 		{
@@ -117,7 +81,7 @@ int load_history_from_file() {
 		
 		if(temp_history.parse(&history_tbl)==0)
 		{
-			temp_history.insert_new();
+			temp_history.insert();
 		}
 		else
 		{
@@ -141,7 +105,7 @@ int load_item_from_file() {
 		
 		if(temp_item.parse(&item_tbl)==0)
 		{
-			temp_item.insert_new();
+			temp_item.insert();
 		}
 		else
 		{
@@ -165,7 +129,7 @@ int load_neworder_from_file() {
 		
 		if(temp_neworder.parse(&neworder_tbl)==0)
 		{
-			temp_neworder.insert_new();
+			temp_neworder.insert();
 		}
 		else
 		{
@@ -189,7 +153,7 @@ int load_order_from_file() {
 		
 		if(temp_order.parse(&order_tbl)==0)
 		{
-			temp_order.insert_new();
+			temp_order.insert();
 		}
 		else
 		{
@@ -213,7 +177,7 @@ int load_orderline_from_file() {
 		
 		if(temp_orderline.parse(&orderline_tbl)==0)
 		{
-			temp_orderline.insert_new();
+			temp_orderline.insert();
 		}
 		else
 		{
@@ -237,7 +201,7 @@ int load_stock_from_file() {
 		
 		if(temp_stock.parse(&stock_tbl)==0)
 		{
-			temp_stock.insert_new();
+			temp_stock.insert();
 		}
 		else
 		{
@@ -261,7 +225,7 @@ int load_warehouse_from_file() {
 		
 		if(temp_warehouse.parse(&warehouse_tbl)==0)
 		{
-			temp_warehouse.insert_new();
+			temp_warehouse.insert();
 		}
 		else
 		{

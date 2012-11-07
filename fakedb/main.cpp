@@ -8,6 +8,7 @@
 #include <sys/time.h>
 
 #include "include/schema.h"
+#include "include/storage.h"
 #include "include/data_migrate.h"
 #include "include/oltp.h"
 
@@ -50,7 +51,7 @@ int main(int argc, char* argv[]) {
 	for(it=warehouse_vect.begin(); it !=warehouse_vect.end(); ++it)
 		display_warehouse(*it);
 		//cout << *i << " "; // print with overloaded operator
-
+	
 	gettimeofday(&start_time,NULL);
 	for(unsigned long i=0;i<no_iterations;i++) {
 		srand(time(NULL));

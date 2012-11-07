@@ -10,15 +10,10 @@
 
 #include "include/schema.h"
 
+#define E_EOF_REACHED -2
 
 uint64_t warehouse::count=0;
 
-
-int warehouse::insert_new() {
-   warehouse_vect.push_back(*this);
-   warehouse_map.insert(make_pair(make_tuple(w_id), count));
-   count++;
-}
 
 
 int warehouse::parse(FILE **fp) {
@@ -81,12 +76,6 @@ int warehouse::parse(FILE **fp) {
 
 uint64_t district::count=0;
 
-
-int district::insert_new() {
-   district_vect.push_back(*this);
-   district_map.insert(make_pair(make_tuple(d_w_id,d_id), count));
-   count++;
-}
 
 
 int district::parse(FILE **fp) {
@@ -153,12 +142,6 @@ int district::parse(FILE **fp) {
 
 uint64_t customer::count=0;
 
-
-int customer::insert_new() {
-   customer_vect.push_back(*this);
-   customer_map.insert(make_pair(make_tuple(c_w_id, c_d_id, c_id), count));
-   count++;
-}
 
 
 int customer::parse(FILE **fp) {
@@ -246,12 +229,6 @@ int customer::parse(FILE **fp) {
 uint64_t history::count=0;
 
 
-int history::insert_new() {
-   history_vect.push_back(*this);
-   //history_map.insert(make_pair(make_tuple(), count));
-   count++;
-}
-
 
 int history::parse(FILE **fp) {
    char token[25];
@@ -312,12 +289,6 @@ int history::parse(FILE **fp) {
 uint64_t neworder::count=0;
 
 
-int neworder::insert_new() {
-   neworder_vect.push_back(*this);
-   neworder_map.insert(make_pair(make_tuple(no_w_id, no_d_id, no_o_id), count));
-   count++;
-}
-
 
 int neworder::parse(FILE **fp) {
    char token[10];
@@ -367,12 +338,6 @@ int neworder::parse(FILE **fp) {
 
 uint64_t order::count=0;
 
-
-int order::insert_new() {
-   order_vect.push_back(*this);
-   order_map.insert(make_pair(make_tuple(o_w_id, o_d_id, o_id), count));
-   count++;
-}
 
 
 int order::parse(FILE **fp) {
@@ -433,12 +398,6 @@ int order::parse(FILE **fp) {
 
 uint64_t orderline::count=0;
 
-
-int orderline::insert_new() {
-   orderline_vect.push_back(*this);
-   orderline_map.insert(make_pair(make_tuple(ol_w_id, ol_d_id, ol_o_id, ol_number), count));
-   count++;
-}
 
 
 int orderline::parse(FILE **fp) {
@@ -504,12 +463,6 @@ int orderline::parse(FILE **fp) {
 uint64_t item::count=0;
 
 
-int item::insert_new() {
-   item_vect.push_back(*this);
-   item_map.insert(make_pair(make_tuple(i_id), count));
-   count++;
-}
-
 
 int item::parse(FILE **fp) {
    char token[51];
@@ -563,12 +516,6 @@ int item::parse(FILE **fp) {
 
 uint64_t stock::count=0;
 
-
-int stock::insert_new() {
-   stock_vect.push_back(*this);
-   stock_map.insert(make_pair(make_tuple(s_w_id, s_i_id), count));
-   count++;
-}
 
 
 int stock::parse(FILE **fp) {
