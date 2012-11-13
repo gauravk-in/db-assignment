@@ -13,4 +13,8 @@ clean:
 run: clean parse_sql
 	mkdir -p gen_code
 	./parse_sql schema.sql abc
+
+run_load: clean parse_sql
+	mkdir -p gen_code
+	./parse_sql schema.sql abc
 	./load_to_fakedb.sh

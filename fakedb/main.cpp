@@ -14,7 +14,7 @@
 
 using namespace std;
 
-#define no_iterations 1000000
+#define no_iterations 100000
 
 /*
 ostream &operator<<(ostream &output, const warehouse &o)
@@ -52,11 +52,11 @@ int main(int argc, char* argv[]) {
 		display_warehouse(*it);
 		//cout << *i << " "; // print with overloaded operator
 	
+	srand(time(NULL));
 	gettimeofday(&start_time,NULL);
 	for(unsigned long i=0;i<no_iterations;i++) {
-		srand(time(NULL));
-		choice = rand()%1000;
-		if(choice>100)
+		choice = rand()%100;
+		if(choice>10)
 			newOrderRandom(time(NULL), rand()%warehouses+1);
 		else
 			deliveryRandom(time(NULL), rand()%warehouses+1);

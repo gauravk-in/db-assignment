@@ -157,7 +157,8 @@ int generate_code()
 	fprintf(fp_storage_cpp, "#include <map>\n");
 	fprintf(fp_storage_cpp, "#include <tuple>\n\n");
 	fprintf(fp_storage_cpp, "#include \"include/schema.h\"\n");
-	fprintf(fp_storage_cpp, "#include \"include/storage.h\"\n\n\n");
+	fprintf(fp_storage_cpp, "#include \"include/storage.h\"\n");
+	fprintf(fp_storage_cpp, "#include <string.h>\n\n\n");
 	fprintf(fp_storage_cpp, "using namespace std;\n");
 	//fprintf(fp_storage_cpp, "");
 	//fprintf(fp_storage_cpp, "");
@@ -204,6 +205,7 @@ int generate_code()
 		//remove() code
 		fprintf(fp_storage_cpp,"void %s::remove() {\n",table_it->table_name);
 		
+		fprintf(fp_storage_cpp,"\t//Remove the entry in map that points to current tuple\n");
 		if(!table_it->pkeys_list.empty())
 		{
 			//declare iterator on map
@@ -222,7 +224,60 @@ int generate_code()
 			fprintf(fp_storage_cpp,"\t%s_map.erase(%s_map_iter);\n",table_it->table_name,table_it->table_name);
 		}
 		//add deleted tuple_id to _deleted_vect
-		fprintf(fp_storage_cpp,"\t%s_deleted_vect.push_back(tuple_id);\n",table_it->table_name);
+		//fprintf(fp_storage_cpp,"\t%s_deleted_vect.push_back(tuple_id);\n",table_it->table_name);
+
+		//Move last tuple in vector in the place of the deleted tuple
+		fprintf(fp_storage_cpp,"\t//Move last tuple in vector in the place of the deleted tuple\n");
+		fprintf(fp_storage_cpp,"\t//If current tuple is not the last tuple,\n");
+		fprintf(fp_storage_cpp,"\tif(tuple_id != count - 1) {\n\n");
+		fprintf(fp_storage_cpp,"\t\t//Move content of last tuple to fields in this tuple\n");
+		fprintf(fp_storage_cpp,"\t\t%s %s_vect_last_iter;\n",table_it->table_name,table_it->table_name);
+		fprintf(fp_storage_cpp,"\t\t%s_vect_last_iter=%s_vect.at(count - 1);\n\n",table_it->table_name,table_it->table_name);
+
+		for(field_it=table_it->field_list.begin();field_it!=table_it->field_list.end();field_it++)
+		{
+			if(!strcmp(field_it->field_type,"char") && field_it->field_size>0)
+			{
+				fprintf(fp_storage_cpp, "\t\tstrcpy(%s, %s_vect_last_iter.%s);\n",field_it->field_name,table_it->table_name,field_it->field_name);
+			}
+			else
+				fprintf(fp_storage_cpp, "\t\t%s = %s_vect_last_iter.%s;\n",field_it->field_name, table_it->table_name, field_it->field_name);
+		}
+
+		//if there exists a map on the table, change the tuple_id for the last tuple in vector to point to new location.
+		fprintf(fp_storage_cpp,"\t\n");
+		fprintf(fp_storage_cpp,"\t\t//Remove the entry for the last tuple in map, and insert a new one with new tuple_id\n");
+		if(!table_it->pkeys_list.empty())
+		{
+			//declare iterator on map
+			fprintf(fp_storage_cpp,"\t\t%s_map_t::iterator %s_map_iter;\n",table_it->table_name,table_it->table_name);
+			//create tuple_string
+			char tuple_string[50]="(";
+			for(field_it=table_it->pkeys_list.begin();field_it!=table_it->pkeys_list.end();field_it++)
+			{
+				strcat(tuple_string,field_it->field_name);
+				strcat(tuple_string,",");
+			}
+			tuple_string[strlen(tuple_string)-1]=')';
+
+			//find entry in map, erase and insert new with the tuple_id
+			fprintf(fp_storage_cpp,"\t\t%s_map_iter=%s_map.find(make_tuple%s);\n",table_it->table_name,table_it->table_name,tuple_string);
+			fprintf(fp_storage_cpp,"\t\tif(%s_map_iter != %s_map.end())\n",table_it->table_name,table_it->table_name);
+			fprintf(fp_storage_cpp,"\t\t\t%s_map.erase(%s_map_iter);\n",table_it->table_name,table_it->table_name);
+			fprintf(fp_storage_cpp,"\t\t%s_map.insert(make_pair(make_tuple%s, tuple_id));;\n",table_it->table_name,tuple_string);
+
+			//Call remove on the last entry of the vector
+			fprintf(fp_storage_cpp,"\t\n");
+			fprintf(fp_storage_cpp,"\t\t//Call remove on the last entry of the vector\n");
+			fprintf(fp_storage_cpp, "\t\t%s_vect_last_iter.remove();\n",table_it->table_name);
+		}
+
+		fprintf(fp_storage_cpp,"\t}\n");
+
+		fprintf(fp_storage_cpp,"\telse {\t\t//if the tuple is the last tuple in the vector\n");
+		fprintf(fp_storage_cpp,"\t\tcount--;\n");
+		fprintf(fp_storage_cpp,"\t\t%s_vect.pop_back();\n", table_it->table_name);
+		fprintf(fp_storage_cpp,"\t}\n");
 
 		//do not erase for now. Put this as a hint.
 		fprintf(fp_storage_cpp,"\t//%s_vect.erase(tuple_id);\n",table_it->table_name);
@@ -252,7 +307,7 @@ int generate_code()
 
 	for(table_it=table_list.begin();table_it!=table_list.end(); table_it++)
 	{
-		fprintf(fp_const_cpp, "%s::%s() {count=0;}\n\n",table_it->table_name,table_it->table_name);
+		fprintf(fp_const_cpp, "%s::%s() {}\n\n",table_it->table_name,table_it->table_name);
 
 		//create parameter string
 		char par_s[600]="(";

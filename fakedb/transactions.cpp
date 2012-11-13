@@ -159,7 +159,8 @@ void delivery(int w_id, int o_carrier_id, uint64_t datetime)
       }
       o_id=neworder_vect.at(neworder_map_iter->second).no_o_id;
       //neworder_vect.erase(neworder_vect.begin()+(neworder_map_iter->second));
-      neworder_map.erase(neworder_map_iter);
+      //neworder_map.erase(neworder_map_iter);
+      neworder_vect.at(neworder_map_iter->second).remove();
 
       temp_order = order_vect.at(order_map.find(make_tuple(w_id, d_id, o_id))->second);
       int o_ol_cnt = temp_order.o_ol_cnt;
