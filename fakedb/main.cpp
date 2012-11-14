@@ -3,18 +3,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <vector>
 #include <ctime>
 #include <sys/time.h>
+#include <signal.h>
+#include <sys/types.h>
 
 #include "include/schema.h"
 #include "include/storage.h"
 #include "include/data_migrate.h"
 #include "include/oltp.h"
+#include "include/query.h"
 
 using namespace std;
-
-#define no_iterations 100000
 
 /*
 ostream &operator<<(ostream &output, const warehouse &o)
@@ -23,15 +25,26 @@ ostream &operator<<(ostream &output, const warehouse &o)
    return output;
 }*/
 
-void display_warehouse(const warehouse w)
+volatile bool childRunning=false;
+
+static void SIGCHLD_handler(int sig) {
+   childRunning=false;
+}
+
+void display_order(const order o)
 {
-	printf("%d\t%s\t%s\n",w.w_id, w.w_name, w.w_zip);
+	printf("%llu\t%llu\t%llu\n",o.o_id, o.o_d_id, o.o_w_id);
 	return;
 }
 
 int warehouses=5;
 
 int main(int argc, char* argv[]) {
+	struct sigaction sa;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags=0;
+	sa.sa_handler=SIGCHLD_handler;
+	sigaction(SIGCHLD,&sa,NULL);
 
 	load_customer_from_file();
 	load_district_from_file();
@@ -46,20 +59,37 @@ int main(int argc, char* argv[]) {
 	//while(1) {
 	int choice;
 	timeval start_time, end_time, time_taken;
-	vector<warehouse>::iterator it;
+	vector<order>::iterator it;
 
-	for(it=warehouse_vect.begin(); it !=warehouse_vect.end(); ++it)
-		display_warehouse(*it);
+	int i=0;
+	for(it=order_vect.begin(); i<10; i++, it++)
+		display_order(*it);
 		//cout << *i << " "; // print with overloaded operator
-	
+
+	unsigned long int no_iterations=0;
+
 	srand(time(NULL));
-	gettimeofday(&start_time,NULL);
-	for(unsigned long i=0;i<no_iterations;i++) {
-		choice = rand()%100;
-		if(choice>10)
-			newOrderRandom(time(NULL), rand()%warehouses+1);
-		else
-			deliveryRandom(time(NULL), rand()%warehouses+1);
+	for(int i=0;i<10;i++) {
+		childRunning = true;
+		gettimeofday(&start_time,NULL);
+		pid_t pid=fork();
+		if(pid) {
+			while(childRunning) {
+				//for(unsigned long i=0;i<no_iterations;i++) {
+					choice = rand()%100;
+					if(choice>10)
+						newOrderRandom(time(NULL), rand()%warehouses+1);
+					else
+						deliveryRandom(time(NULL), rand()%warehouses+1);
+				//}
+					no_iterations++;
+					usleep(500);
+			}
+		}
+		else {
+			run_query();
+			return 0;
+		}
 	}
 	gettimeofday(&end_time,NULL);
 
@@ -69,7 +99,7 @@ int main(int argc, char* argv[]) {
 	cout << "Time Taken " << time_taken.tv_sec << " s " << time_taken.tv_usec << " us\n";
 	unsigned long int tps;
 	tps=no_iterations*1000/(time_taken.tv_sec*1000+time_taken.tv_usec/1000);
-	cout << "newOrder operations per second are " << tps << endl;
+	cout << "Transactions per second are " << tps << endl;
 
 	return 0;
 }

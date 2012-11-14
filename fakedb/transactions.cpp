@@ -11,26 +11,24 @@
 using namespace std;
 
 
-void newOrder(int w_id, int d_id, int c_id, int items, long int supware[15], long int itemid[15], long int qty[15], uint64_t datetime) {
-   //vector<warehouse>::iterator ware_vec_iter;
-   warehouse ware_vec_iter;
-   //vector<customer>::iterator cust_vec_iter;
-   customer cust_vec_iter;
-   //vector<district>::iterator dist_vec_iter;
-   district dist_vec_iter;
+void newOrder(uint64_t w_id, uint64_t d_id, uint64_t c_id, int items, long int supware[15], uint64_t itemid[15], long int qty[15], uint64_t datetime) {
 
-   ////printf("w_id is %d\n",w_id);
+  
+   warehouse temp_warehouse;
+   customer temp_customer;
+   district temp_district;
+   int flag=0;
 
-   //for(ware_vec_iter=warehouse_vect.begin(); (ware_vec_iter!=warehouse_vect.end() && (ware_vec_iter.w_id!=w_id)); ++ware_vec_iter);
-   ware_vec_iter = warehouse_vect.at(warehouse_map.find(make_tuple(w_id))->second);
-   //printf("KUKU: %s:%s:%d\n",__FILE__,__func__,__LINE__);
-   ////printf("Warehouse found %d\n",ware_vec_iter.w_id);
-   //for(cust_vec_iter=customer_vect.begin(); (cust_vec_iter!=customer_vect.end() && (cust_vec_iter.c_w_id!=w_id && cust_vec_iter.c_d_id!=d_id && cust_vec_iter.c_id!=c_id)); ++cust_vec_iter);
-   cust_vec_iter = customer_vect.at(customer_map.find(make_tuple(w_id,d_id,c_id))->second);
-   //printf("KUKU: %s:%s:%d\n",__FILE__,__func__,__LINE__);
-   //for(dist_vec_iter=district_vect.begin(); cust_vec_iter!=customer_vect.end() && (dist_vec_iter.d_w_id!=w_id && dist_vec_iter.d_id!=d_id); ++dist_vec_iter);
-   dist_vec_iter = district_vect.at(district_map.find(make_tuple(w_id,d_id))->second);
-   //printf("KUKU: %s:%s:%d\n",__FILE__,__func__,__LINE__);
+   vector<district>::iterator district_vect_iter;
+
+   temp_warehouse = warehouse_vect.at(warehouse_map.find(make_tuple(w_id))->second);
+   temp_customer = customer_vect.at(customer_map.find(make_tuple(w_id,d_id,c_id))->second);
+   uint64_t dist_vec_pos = district_map.find(make_tuple(w_id,d_id))->second;
+
+   district_vect_iter=district_vect.begin() + dist_vec_pos;
+
+   uint64_t o_id= district_vect_iter->d_next_o_id; //d_next_o_id as o_id
+   district_vect_iter->d_next_o_id++;
 
    int all_local = 1;
    for(int i=0;i<items;i++) {
@@ -38,13 +36,11 @@ void newOrder(int w_id, int d_id, int c_id, int items, long int supware[15], lon
          all_local=0;
    }
 
-   int o_id=dist_vec_iter.d_next_o_id; //d_next_o_id as o_id
-
    order order_new(o_id,d_id,w_id,c_id,datetime,0,items,all_local);
-   order_vect.push_back(order_new);
+   order_new.insert();
 
    neworder neworder_new(o_id,d_id,w_id);
-   neworder_vect.push_back(neworder_new);
+   neworder_new.insert();
 
    for(int i=0;i<items;i++) {
       //vector<item>::iterator item_vec_iter;
@@ -53,11 +49,9 @@ void newOrder(int w_id, int d_id, int c_id, int items, long int supware[15], lon
       stock stock_vec_iter;
 
       //for(item_vec_iter=item_vect.begin();item_vec_iter!=item_vect.end() && item_vec_iter.i_id!=itemid[i];++item_vec_iter);
-      item_vec_iter = item_vect.at(item_map.find(make_tuple(itemid[i]))->second);
-      //printf("KUKU: %s:%s:%d\n",__FILE__,__func__,__LINE__);
+      item_vec_iter = item_vect.at(item_map.find(make_tuple(itemid[i]))->second);   
       //for(stock_vec_iter=stock_vect.begin();stock_vec_iter!=stock_vect.end() && (stock_vec_iter.s_w_id!=supware[i] && stock_vec_iter.s_i_id!=itemid[i]);++stock_vec_iter);
-      stock_vec_iter = stock_vect.at(stock_map.find(make_tuple(supware[i],itemid[i]))->second);
-      //printf("KUKU: %s:%s:%d\n",__FILE__,__func__,__LINE__);
+      stock_vec_iter = stock_vect.at(stock_map.find(make_tuple(supware[i],itemid[i]))->second);   
    
       if(stock_vec_iter.s_quantity > qty[i])
          stock_vec_iter.s_quantity = stock_vec_iter.s_quantity - qty[i];
@@ -69,7 +63,9 @@ void newOrder(int w_id, int d_id, int c_id, int items, long int supware[15], lon
       else
          stock_vec_iter.s_order_cnt = stock_vec_iter.s_order_cnt +1;
 
-      uint64_t ol_amount=qty[i]*(item_vec_iter.i_price)*(1.0+(ware_vec_iter.w_tax)*(1.0-(cust_vec_iter.c_discount)));
+      uint64_t ol_amount=qty[i]*(item_vec_iter.i_price)*(1.0+(temp_warehouse.w_tax)*(1.0-(temp_customer.c_discount)));
+
+
 
       char s_dist[25];
       switch(d_id) {
@@ -143,12 +139,14 @@ create transaction newOrder ( integer w_id, integer d_id, integer c_id, integer 
 
 */
 
-void delivery(int w_id, int o_carrier_id, uint64_t datetime)
+void delivery(uint64_t w_id, uint64_t o_carrier_id, uint64_t datetime)
 {
-   int d_id;
+
+   uint64_t d_id;
+
 
    for(d_id=1; d_id <= 10; d_id++) {
-      int o_id;
+      uint64_t o_id;
       order temp_order;
       customer temp_customer;
       neworder_map_t::iterator neworder_map_iter;
@@ -157,26 +155,27 @@ void delivery(int w_id, int o_carrier_id, uint64_t datetime)
       if(neworder_map_iter->second >= neworder_vect.size()) {
          return;
       }
-      o_id=neworder_vect.at(neworder_map_iter->second).no_o_id;
-      //neworder_vect.erase(neworder_vect.begin()+(neworder_map_iter->second));
-      //neworder_map.erase(neworder_map_iter);
-      neworder_vect.at(neworder_map_iter->second).remove();
+      o_id=neworder_vect.at(neworder_map_iter->second).no_o_id;   
+      neworder_vect.at(neworder_map_iter->second).remove();   
 
-      temp_order = order_vect.at(order_map.find(make_tuple(w_id, d_id, o_id))->second);
-      int o_ol_cnt = temp_order.o_ol_cnt;
-      int o_c_id = temp_order.o_c_id;
+      uint64_t temp_order_pos=order_map.find(make_tuple(w_id, d_id, o_id))->second;
+      if(temp_order_pos >= order_vect.size())
+         continue;
+      temp_order = order_vect.at(temp_order_pos);   
+      uint64_t o_ol_cnt = temp_order.o_ol_cnt;
+      uint64_t o_c_id = temp_order.o_c_id;
       temp_order.o_carrier_id=o_carrier_id;
 
       uint64_t ol_total=0;
-      int ol_number;
+      uint64_t ol_number;
       for(ol_number=1; ol_number<=temp_order.o_ol_cnt; ol_number++) {
-         orderline temp_orderline;
-         temp_orderline = orderline_vect.at(orderline_map.find(make_tuple(w_id,d_id,o_id,ol_number))->second);
+         orderline temp_orderline;      
+         temp_orderline = orderline_vect.at(orderline_map.find(make_tuple(w_id,d_id,o_id,ol_number))->second);      
          ol_total=ol_total + temp_orderline.ol_amount;
          temp_orderline.ol_delivery_d=datetime;
       }
 
-      temp_customer = customer_vect.at(customer_map.find(make_tuple(w_id, d_id,o_c_id))->second);
+      temp_customer = customer_vect.at(customer_map.find(make_tuple(w_id, d_id,o_c_id))->second);   
       temp_customer.c_balance=temp_customer.c_balance + ol_total;
 
    }

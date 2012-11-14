@@ -115,7 +115,7 @@ int parse_sql() {
 
 						fscanf(fp_sql, "%s", token);
 						if(strcmp(token,"integer")==0) {
-							strcpy(new_field.field_type, "int");
+							strcpy(new_field.field_type, "uint64_t");
 							new_field.field_size=-1;
 						}
 

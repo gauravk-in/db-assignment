@@ -36,7 +36,7 @@ create function integer nurand(integer A,integer x,integer y)
    return ((((random%A)|(random%(y-x+1)+x))+42)%(y-x+1))+x;
 };
 */
-long int nurand(long int A, long int x, long int y) {
+uint64_t nurand(long int A, long int x, long int y) {
    return ((((rand()%A)|(rand()%(y-x+1)+x))+42)%(y-x+1))+x;
 }
 
@@ -46,7 +46,7 @@ create function integer urand(integer min,integer max)
    return (random%(max-min+1))+min;
 };
 */
-long int urand(long int min, long int max)
+uint64_t urand(long int min, long int max)
 {
       return (rand()%(max-min+1))+min;
 }
@@ -63,7 +63,7 @@ create function integer urandexcept(integer min,integer max,integer v)
 };
 */
 
-long int urandexcept(long int min, long int max, long int v) {
+uint64_t urandexcept(long int min, long int max, long int v) {
    if(max<=min)
       return min;
    long int r=(rand()%(max-min))+min;
@@ -97,18 +97,18 @@ create function void newOrderRandom(timestamp now,integer w_id)
    execute newOrder(w_id,d_id,c_id,ol_cnt,supware,itemid,qty,now);
 };
 */
-void newOrderRandom(time_t now, int w_id) {
-   long int d_id=urand(1,10);
-   long int c_id=nurand(1023,1,3000);
-   long int ol_cnt=urand(5,15);
+void newOrderRandom(time_t now, uint64_t w_id) {
+   uint64_t d_id=urand(1,10);
+   uint64_t c_id=nurand(1023,1,3000);
+   uint64_t ol_cnt=urand(5,15);
 
    long int supware[15];
-   long int itemid[15];
+   uint64_t itemid[15];
    long int qty[15];
 
    //printf("ol_cnt is %d\n",ol_cnt);
 
-   for(long int i=0;i<ol_cnt;i++) {
+   for(uint64_t i=0;i<ol_cnt;i++) {
       if(urand(1,100) > 1)
          supware[i]=w_id;
       else
@@ -157,8 +157,8 @@ create function void ostatRandom(integer w_id)
    }
 };
 */
-void deliveryRandom(time_t now, int w_id) {
-   int carrier_id=urand(1,10);
+void deliveryRandom(time_t now, uint64_t w_id) {
+   uint64_t carrier_id=urand(1,10);
    delivery(w_id,carrier_id,(uint64_t)now);
 }
 /*
