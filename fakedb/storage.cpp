@@ -1,4 +1,3 @@
-#include <iostream>
 #include <stdint.h> // for uint64_t
 
 #include <vector>

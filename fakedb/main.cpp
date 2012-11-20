@@ -16,6 +16,8 @@
 #include "include/oltp.h"
 #include "include/query.h"
 
+#include <dlfcn.h>
+
 using namespace std;
 
 /*
@@ -56,6 +58,44 @@ int main(int argc, char* argv[]) {
 	load_stock_from_file();
 	load_warehouse_from_file();
 
+	void *qcode_handle;
+	void (*query_fn)(void);
+	int choice;
+
+	while(1)
+	{
+		printf("\nChoice :\n1. Run Query\n2.Quit\n");
+		scanf("%d",&choice);
+		switch(choice)
+		{
+			case 1:
+				printf("Enter path to library\n");
+				char lib_path[50];
+				scanf("%s",lib_path);
+				qcode_handle = dlopen(lib_path, RTLD_LAZY);
+				if(!qcode_handle)
+				{
+					printf("Error in loading library\n%s",dlerror());
+					continue;
+				}
+				query_fn = dlsym(qcode_handle, "query2");
+				if(!query_fn)
+				{
+					printf("Error in loading symbol\n");
+					continue;
+				}
+				query_fn();
+				dlclose(qcode_handle);
+				break;
+			case 2: return 0;
+				break;
+			default:
+				printf("Error !!! \n");
+
+		}
+	}
+
+/*
 	//while(1) {
 	int choice;
 	timeval start_time, end_time, time_taken;
@@ -100,6 +140,8 @@ int main(int argc, char* argv[]) {
 	unsigned long int tps;
 	tps=no_iterations*1000/(time_taken.tv_sec*1000+time_taken.tv_usec/1000);
 	cout << "Transactions per second are " << tps << endl;
+*/
+
 
 	return 0;
 }
