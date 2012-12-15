@@ -1,15 +1,15 @@
 CC=g++
-CCFLAGS=-O0
+CCFLAGS=-fpermissive -std=c++11
 
-SOURCES=main.cpp query_code.cpp exp_tree.cpp 
-HEADERS=include/query_code.h include/exp_tree.h
+SOURCE=main.cpp parse_tree.cpp input_parsetree.cpp
+INCLUDE=include/parse_tree.h
 
-run_load: query_compiler
-	./query_compiler
-	mv gen_query_code.cpp ../fakedb
-
-query_compiler: $(SOURCES) $(HEADERS)
+compile_query: $(SOURCE) $(INCLUDE)
 	$(CC) $(CCFLAGS) $^ -o $@
 
+run: compile_query
+	./compile_query
+	cp gen_query_code.cpp ../fakedb/
+
 clean:
-	rm -rf query_compiler
+	rm -rf compile_query *.o

@@ -15,8 +15,12 @@
 
 class mystring {
 public:
-	char str[50];
+	char* str = NULL;
 
+	~mystring() {
+	if(str!=NULL)
+		free(str);
+	}
 	mystring operator=(char *_str);
 	mystring operator=(uint64_t val);
 	int operator==(uint64_t val);
@@ -25,13 +29,13 @@ public:
 };
 
 mystring mystring::operator=(char *_str) {
-	//str = (char*)malloc(sizeof(char)*strlen(_str));
+	str = (char*)malloc(sizeof(char)*strlen(_str));
 	strcpy(str, _str);
 	return *this;
 }
 
 mystring mystring::operator=(uint64_t val) {
-	//str = (char*)malloc(sizeof(char)*20);
+	str = (char*)malloc(sizeof(char)*20);
 	sprintf(str, "%llu", val);
 	return *this;
 }
