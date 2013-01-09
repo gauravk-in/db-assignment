@@ -29,13 +29,38 @@ void generate_query_code() {
 	fprintf(qcode_fp, "#include <stdint.h>\n");
 	fprintf(qcode_fp, "#include <stdlib.h>\n\n");
 
+	fprintf(qcode_fp, "#include <omp.h>\n");
+	fprintf(qcode_fp, "#include <task_scheduler_init.h>\n");
+	fprintf(qcode_fp, "#include <blocked_range.h>\n");
+	fprintf(qcode_fp, "#include <parallel_for.h>\n");
+	fprintf(qcode_fp, "#include <concurrent_hash_map.h>\n\n");
+
 	fprintf(qcode_fp, "#include <utility>\n");
 	fprintf(qcode_fp, "#include <unordered_map>\n");
 	fprintf(qcode_fp, "#include <vector>\n\n");
 	fprintf(qcode_fp, "#include \"include/schema.h\"\n");
 	fprintf(qcode_fp, "#include \"include/storage.h\"\n\n");
+
+	fprintf(qcode_fp, "using namespace tbb;\n\n");
 	fprintf(qcode_fp, "");
+	fprintf(qcode_fp, "// Structure that defines hashing and comparison operations for user's type.\n");
+	fprintf(qcode_fp, "struct MyHashCompare {\n");
+	fprintf(qcode_fp, "    static uint64_t hash( const uint64_t x ) {\n");
+	fprintf(qcode_fp, "        uint64_t h = 5892;\n");
+	fprintf(qcode_fp, "        h = ((h<<5) + h) * x;\n");
+	fprintf(qcode_fp, "        return h;\n");
+	fprintf(qcode_fp, "    }\n");
+	fprintf(qcode_fp, "//! True if strings are equal\n");
+	fprintf(qcode_fp, "    static bool equal( const uint64_t x, const uint64_t y ) {\n");
+	fprintf(qcode_fp, "        return x==y;\n");
+	fprintf(qcode_fp, "    }\n");
+	fprintf(qcode_fp, "};\n");
+
+// A concurrent hash table that maps strings to ints.
+	fprintf(qcode_fp, "typedef concurrent_hash_map<uint64_t,uint64_t,MyHashCompare> HashTable;\n");
 	fprintf(qcode_fp, "");
+
+
 	fprintf(qcode_fp, "class mystring {\n");
 	fprintf(qcode_fp, "public:\n");
 	fprintf(qcode_fp, "\tchar str[50];\n\n");
@@ -72,8 +97,10 @@ void generate_query_code() {
 
 	indent();
 	fprintf(qcode_fp, "void query2() {\n");
-	open_braces++;
 
+	open_braces++;
+	indent();
+	fprintf(qcode_fp, "task_scheduler_init init;\n");
 	indent();
 	fprintf(qcode_fp, "timeval start_time, end_time, time_taken;\n\n");
 	indent();
@@ -94,7 +121,7 @@ void generate_query_code() {
 	open_braces--;
 	indent();
 	fprintf(qcode_fp, "}\n");
-	
+
 	fclose(qcode_fp);
 }
 

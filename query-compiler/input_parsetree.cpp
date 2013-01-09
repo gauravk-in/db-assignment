@@ -18,6 +18,7 @@ void generate_parse_tree() {
 	//PRINT Operation
 	print_Operator *print1;
 	print1 = new print_Operator;
+	print1->oper_type=PRINT;
 	expr_root = print1;
 	table_field_vect_t *table=new table_field_vect_t;
 	//tables and fields
@@ -37,6 +38,7 @@ void generate_parse_tree() {
 	//SELECT Operator
 	Operator *select1;
 	select1 = print1->l_input;
+	select1->oper_type=SELECT;
 	select1->consumer = print1;
 	//tables and fields
 	table = new table_field_vect_t;
@@ -56,6 +58,7 @@ void generate_parse_tree() {
 	//JOIN Operator
 	Operator *join1;
 	join1 = select1->l_input;
+	join1->oper_type=JOIN;
 	join1->consumer = select1;
 	join1->l_input = new tableScan_Operator;
 	join1->r_input = new tableScan_Operator;
@@ -74,6 +77,7 @@ void generate_parse_tree() {
 	//left TABLESCAN Operator
 	Operator *tableScan1;
 	tableScan1 = join1->l_input;
+	tableScan1->oper_type=TABLESCAN;
 	tableScan1->consumer = join1;
 	tableScan1->table_name = "district";
 	//OVERKILL : table_name is enough for tableScan_Operator

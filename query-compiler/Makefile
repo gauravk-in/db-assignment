@@ -6,6 +6,7 @@ INCLUDE=include/parse_tree.h
 
 compile_query: $(SOURCE) $(INCLUDE)
 	$(CC) $(CCFLAGS) $^ -o $@
+	./compile_query
 
 run: compile_query
 	./compile_query

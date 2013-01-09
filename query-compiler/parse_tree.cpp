@@ -3,9 +3,10 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "include/parse_tree.h"
 
-using namespace std;
+ using namespace std;
 
 static int num_hashOp;					//Num of Hash Operators used. This is
 
@@ -47,12 +48,26 @@ void select_Operator::produce() {
 void select_Operator::consume() {
 	for(vector<table_field_vect_t>::iterator table_iter=table_vect.begin(); table_iter != table_vect.end(); table_iter++)
 	{
-		for(vector<field_t>::iterator field_iter=table_iter->field_vect.begin(); field_iter != table_iter->field_vect.end(); field_iter++)
+		printf("%s, %d\n", l_input->l_input->table_name.c_str(), l_input->oper_type);
+		if(l_input->oper_type==JOIN && !strcmp(table_iter->table_name.c_str(), l_input->l_input->table_name.c_str()))
 		{
-			indent();
-			fprintf(qcode_fp, "mystring %s;\n", field_iter->c_str());
-			indent();
-			fprintf(qcode_fp, "%s = %s_iter->%s;\n", field_iter->c_str(), table_iter->table_name.c_str(), field_iter->c_str());
+			for(vector<field_t>::iterator field_iter=table_iter->field_vect.begin(); field_iter != table_iter->field_vect.end(); field_iter++)
+			{
+				indent();
+				fprintf(qcode_fp, "mystring %s;\n", field_iter->c_str());
+				indent();
+				fprintf(qcode_fp, "%s = %s_iter->%s;\n", field_iter->c_str(), table_iter->table_name.c_str(), field_iter->c_str());
+			}
+		}
+		else
+		{
+			for(vector<field_t>::iterator field_iter=table_iter->field_vect.begin(); field_iter != table_iter->field_vect.end(); field_iter++)
+			{
+				indent();
+				fprintf(qcode_fp, "mystring %s;\n", field_iter->c_str());
+				indent();
+				fprintf(qcode_fp, "%s = %s_vect[i].%s;\n", field_iter->c_str(), table_iter->table_name.c_str(), field_iter->c_str());
+			}
 		}
 	}
 	consumer->consume();
@@ -67,7 +82,9 @@ void join_Operator::produce() {
 
 	_join1->joinOp_num = num_hashOp++;
 	indent();
-	fprintf(qcode_fp,"unordered_map<%s, uint64_t> hash_map_%d;\n",_join1->hash_key_type.c_str(), _join1->joinOp_num); 
+	fprintf(qcode_fp,"HashTable hash_map_%d;\n", _join1->joinOp_num); 
+	indent();
+	fprintf(qcode_fp,"HashTable::accessor hash_map_%d_acc;\n", _join1->joinOp_num); 
 	l_input->produce();
 	r_input->produce();
 }
@@ -86,7 +103,7 @@ void join_Operator::consume() {
 		indent();
 		fprintf(qcode_fp, "//generate hash table here\n");
 		indent();
-		fprintf(qcode_fp, "hash_map_%d.insert(make_pair(%s_iter->%s, %s_iter->tuple_id));\n", _join1->joinOp_num, l_input->table_name.c_str(), _join1->hash_key_field.c_str(), l_input->table_name.c_str());
+		fprintf(qcode_fp, "hash_map_%d.insert(make_pair(%s_vect[i].%s, %s_vect[i].tuple_id));\n", _join1->joinOp_num, l_input->table_name.c_str(), _join1->hash_key_field.c_str(), l_input->table_name.c_str());
 		_join1->l_input_consumed = true;
 	}
 	else {
@@ -107,7 +124,7 @@ void join_Operator::consume() {
 					fprintf(qcode_fp, " && ");
 				}
 
-				fprintf(qcode_fp, "%s_iter->%s", r_input->table_name.c_str(), pred_iter->pred_l_operand.c_str());
+				fprintf(qcode_fp, "%s_vect[i].%s", r_input->table_name.c_str(), pred_iter->pred_l_operand.c_str());
 				fprintf(qcode_fp, "%s", pred_iter->pred_operator.c_str())						;
 				fprintf(qcode_fp, "%s", pred_iter->pred_r_operand.c_str());
 			}
@@ -116,7 +133,10 @@ void join_Operator::consume() {
 			fprintf(qcode_fp, "{\n");
 			open_braces++;
 			indent();
-			fprintf(qcode_fp, "%s* %s_iter=&%s_vect.at(hash_map_%d.at(%s_iter->%s));\n", l_input->table_name.c_str(), l_input->table_name.c_str(), l_input->table_name.c_str(), _join1->joinOp_num, r_input->table_name.c_str(), hashed_pred.pred_l_operand.c_str());
+			fprintf(qcode_fp, "hash_map_%d.find(hash_map_%d_acc, %s_vect[i].%s);\n", _join1->joinOp_num, _join1->joinOp_num, r_input->table_name.c_str(), hashed_pred.pred_l_operand.c_str());
+			indent();
+			fprintf(qcode_fp, "%s* %s_iter=&%s_vect.at(hash_map_%d_acc->second);\n", l_input->table_name.c_str(), l_input->table_name.c_str(), l_input->table_name.c_str(), _join1->joinOp_num);
+			//fprintf(qcode_fp, "%s* %s_iter=&%s_vect.at(hash_map_%d.at(%s_iter->%s));\n", l_input->table_name.c_str(), l_input->table_name.c_str(), l_input->table_name.c_str(), _join1->joinOp_num, r_input->table_name.c_str(), hashed_pred.pred_l_operand.c_str());
 			/*
 			indent();
 			fprintf(qcode_fp, "if(%s_iter == %s_vect.end()) {\n", l_input->table_name.c_str(), l_input->table_name.c_str());
@@ -153,8 +173,13 @@ void join_Operator::consume() {
 //
 void tableScan_Operator::produce() {
 	indent();
+	fprintf(qcode_fp,"uint64_t max_count_%s = %s_vect[0].count;\n", table_name.c_str(), table_name.c_str());
+	indent();
 	//For loop to trace the entire table to be produced here.
-	fprintf(qcode_fp, "for(vector<%s>::iterator %s_iter=%s_vect.begin(); %s_iter!=%s_vect.end(); %s_iter++)\n",table_name.c_str(),table_name.c_str(),table_name.c_str(),table_name.c_str(),table_name.c_str(),table_name.c_str());
+	fprintf(qcode_fp, "#pragma omp parallel for\n");
+	//fprintf(qcode_fp, "for(vector<%s>::iterator %s_iter=%s_vect.begin(); %s_iter!=%s_vect.end(); %s_iter++)\n",table_name.c_str(),table_name.c_str(),table_name.c_str(),table_name.c_str(),table_name.c_str(),table_name.c_str());
+	indent();
+	fprintf(qcode_fp, "for(uint64_t i = 0; i < max_count_%s; i++)\n", table_name.c_str());
 	indent();
 	fprintf(qcode_fp, "{\n");
 	open_braces++;

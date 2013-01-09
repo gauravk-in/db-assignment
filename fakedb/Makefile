@@ -1,11 +1,13 @@
 CC=g++
-CCFLAGS=-O3 -fno-stack-protector -std=c++11 -fpermissive
+CCFLAGS=-g -O3 -fno-stack-protector -std=c++11 -fpermissive
+CCFLAGS+=-fopenmp
+LIBS+= -lrt -L/home/gaurav/Downloads/tbb/tbb41_20121003oss/lib/ia32/cc4.1.0_libc2.4_kernel2.6.16.21
 
 SOURCES= data_migrate.cpp schema_methods.cpp transactions.cpp oltp.cpp schema_constructors.cpp storage.cpp query.cpp
-INCLUDE=include/data_migrate.h  include/main.h  include/transactions.h  include/oltp.h include/schema.h include/query.h
+INCLUDE=include/data_migrate.h  include/main.h  include/transactions.h  include/oltp.h include/schema.h include/query.h 
 
 fakedb_query: main_query.cpp $(SOURCES) $(INCLUDE) gen_query_code.cpp
-	$(CC) $(CCFLAGS) $^ -o $@
+	$(CC) $(CCFLAGS) $^ -o $@ -I/home/gaurav/Downloads/tbb/tbb41_20121003oss/include/tbb/ $(LIBS) -ltbb
 
 fakedb: main.cpp $(SOURCES) $(INCLUDE)
 	$(CC) $(CCFLAGS) $^ -o $@ -ldl

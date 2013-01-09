@@ -12,6 +12,13 @@ using namespace std;
 typedef string field_t;
 //typedef string predicate_t;
 
+enum operator_type_t {DEFAULT = 0,
+						PRINT,
+						SELECT,
+						JOIN,
+						TABLESCAN
+					};
+
 class predicate_t {
 public:
 	string pred_l_operand;
@@ -27,6 +34,7 @@ public:
 
 class Operator {
 public:
+	enum operator_type_t oper_type = DEFAULT;
 	Operator *consumer;
 	Operator *l_input;
 	Operator *r_input;
