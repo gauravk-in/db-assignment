@@ -30,17 +30,18 @@ void generate_query_code() {
 	fprintf(qcode_fp, "#include <stdlib.h>\n\n");
 
 	fprintf(qcode_fp, "#include <omp.h>\n");
-	fprintf(qcode_fp, "#include <task_scheduler_init.h>\n");
-	fprintf(qcode_fp, "#include <blocked_range.h>\n");
-	fprintf(qcode_fp, "#include <parallel_for.h>\n");
-	fprintf(qcode_fp, "#include <concurrent_hash_map.h>\n\n");
+	//fprintf(qcode_fp, "#include <task_scheduler_init.h>\n");
+	//fprintf(qcode_fp, "#include <blocked_range.h>\n");
+	//fprintf(qcode_fp, "#include <parallel_for.h>\n");
+	//fprintf(qcode_fp, "#include <concurrent_hash_map.h>\n\n");
+	fprintf(qcode_fp, "#include \"include/hash_map.h\"\n");
 
 	fprintf(qcode_fp, "#include <utility>\n");
 	fprintf(qcode_fp, "#include <unordered_map>\n");
 	fprintf(qcode_fp, "#include <vector>\n\n");
 	fprintf(qcode_fp, "#include \"include/schema.h\"\n");
 	fprintf(qcode_fp, "#include \"include/storage.h\"\n\n");
-
+/*
 	fprintf(qcode_fp, "using namespace tbb;\n\n");
 	fprintf(qcode_fp, "");
 	fprintf(qcode_fp, "// Structure that defines hashing and comparison operations for user's type.\n");
@@ -59,6 +60,10 @@ void generate_query_code() {
 // A concurrent hash table that maps strings to ints.
 	fprintf(qcode_fp, "typedef concurrent_hash_map<uint64_t,uint64_t,MyHashCompare> HashTable;\n");
 	fprintf(qcode_fp, "");
+*/
+
+	fprintf(qcode_fp, "typedef MyHashMap HashTable;\n");
+	fprintf(qcode_fp, "\n");
 
 
 	fprintf(qcode_fp, "class mystring {\n");
@@ -99,8 +104,8 @@ void generate_query_code() {
 	fprintf(qcode_fp, "void query2() {\n");
 
 	open_braces++;
-	indent();
-	fprintf(qcode_fp, "task_scheduler_init init;\n");
+/*	indent();
+	fprintf(qcode_fp, "task_scheduler_init init;\n");*/
 	indent();
 	fprintf(qcode_fp, "timeval start_time, end_time, time_taken;\n\n");
 	indent();

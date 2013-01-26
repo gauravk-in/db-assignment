@@ -7,11 +7,7 @@
 #include <stdlib.h>
 
 #include <omp.h>
-#include <task_scheduler_init.h>
-#include <blocked_range.h>
-#include <parallel_for.h>
-#include <concurrent_hash_map.h>
-
+#include "include/hash_map.h"
 #include <utility>
 #include <unordered_map>
 #include <vector>
@@ -19,21 +15,8 @@
 #include "include/schema.h"
 #include "include/storage.h"
 
-using namespace tbb;
+typedef MyHashMap HashTable;
 
-// Structure that defines hashing and comparison operations for user's type.
-struct MyHashCompare {
-    static uint64_t hash( const uint64_t x ) {
-        uint64_t h = 5892;
-        h = ((h<<5) + h) * x;
-        return h;
-    }
-//! True if strings are equal
-    static bool equal( const uint64_t x, const uint64_t y ) {
-        return x==y;
-    }
-};
-typedef concurrent_hash_map<uint64_t,uint64_t,MyHashCompare> HashTable;
 class mystring {
 public:
 	char str[50];
@@ -70,42 +53,39 @@ int mystring::operator==(mystring _mystr) {
 }
 
 void query2() {
-	task_scheduler_init init;
 	timeval start_time, end_time, time_taken;
 
 	gettimeofday(&start_time,NULL);
 
 	HashTable hash_map_0;
-	HashTable::accessor hash_map_0_acc;
-	uint64_t max_count_district = district_vect[0].count;
+	uint64_t max_count_item = item_vect[0].count;
 	#pragma omp parallel for
-	for(uint64_t i = 0; i < max_count_district; i++)
+	for(uint64_t i = 0; i < max_count_item; i++)
 	{
 		//hash_map_0 should be declared just above
 		//generate hash table here
-		hash_map_0.insert(make_pair(district_vect[i].d_id, district_vect[i].tuple_id));
+		hash_map_0.insert(item_vect[i].i_id, item_vect[i].tuple_id);
 	}
-	uint64_t max_count_customer = customer_vect[0].count;
+	uint64_t max_count_orderline = orderline_vect[0].count;
 	#pragma omp parallel for
-	for(uint64_t i = 0; i < max_count_customer; i++)
+	for(uint64_t i = 0; i < max_count_orderline; i++)
 	{
 		//Match with Hash Table here
-		if(customer_vect[i].c_w_id==1)
+		if(orderline_vect[i].ol_w_id==1)
 		{
-			hash_map_0.find(hash_map_0_acc, customer_vect[i].c_d_id);
-			district* district_iter=&district_vect.at(hash_map_0_acc->second);
-			mystring d_name;
-			d_name = district_iter->d_name;
-			mystring c_first;
-			c_first = customer_vect[i].c_first;
-			mystring c_last;
-			c_last = customer_vect[i].c_last;
-			mystring c_id;
-			c_id = customer_vect[i].c_id;
-			printf("%s\t", d_name.str);
-			printf("%s\t", c_first.str);
-			printf("%s\t", c_last.str);
-			printf("%s\t", c_id.str);
+			item* item_iter=&item_vect.at(hash_map_0.find(orderline_vect[i].ol_i_id));
+			mystring i_name;
+			i_name = item_iter->i_name;
+			mystring ol_o_id;
+			ol_o_id = orderline_vect[i].ol_o_id;
+			mystring ol_quantity;
+			ol_quantity = orderline_vect[i].ol_quantity;
+			mystring ol_amount;
+			ol_amount = orderline_vect[i].ol_amount;
+			printf("%s\t", i_name.str);
+			printf("%s\t", ol_o_id.str);
+			printf("%s\t", ol_quantity.str);
+			printf("%s\t", ol_amount.str);
 			printf("\n");
 		}
 	}

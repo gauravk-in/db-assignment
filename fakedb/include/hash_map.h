@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include <atomic>
+ #include <atomic>
 
 #include <functional>
 
@@ -29,7 +29,7 @@ using namespace std;
  	Pair(uint64_t _hashedKey, uint64_t _key, uint64_t _value)
  	{
  		hashedKey= _hashedKey;
- 		key = _key;	
+ 		key = _key;
  		value = _value;
  		next = NULL;
  	}
@@ -61,16 +61,16 @@ using namespace std;
  	temp->next = pairList;
  	pairList = temp; }
 
- 	uint64_t Bucket::find(uint64_t hashedKey)
+ uint64_t Bucket::find(uint64_t hashedKey)
+ {
+ 	for(Pair *temp=pairList; temp != NULL; temp=temp->next)
  	{
- 		for(Pair *temp=pairList; temp != NULL; temp=temp->next)
+ 		if(temp->hashedKey == hashedKey)
  		{
- 			if(temp->hashedKey == hashedKey)
- 			{
- 				return temp->value;
- 			}
+ 			return temp->value;
  		}
  	}
+ }
 
  class MyHashMap
  {
@@ -130,16 +130,16 @@ using namespace std;
 
  uint64_t MyHashMap::insert(uint64_t key, uint64_t value) 
  {
- 	while(rehashing_lock);
+ 	/*while(rehashing_lock);
  	rehashing_lock++;
  	if(num_pairs > (1 << bucketLogSize) + (1 << (bucketLogSize -2)))
- 	{ 		
- 		rehash();
+ 	{ 		rehash();
  	}
- 	rehashing_lock--;
+ 	rehashing_lock--;*/
  	uint64_t hashedKey = generate_hash(key);
  	num_pairs++;
- 	insert(hashedKey, key, value);
+ 	uint64_t bucketNum = (hashedKey & ((1 << bucketLogSize)-1));
+ 	bucketArray[bucketNum].insert(hashedKey, key, value);
  }
 
  uint64_t MyHashMap::insert(uint64_t hashedKey, uint64_t key, uint64_t value) 

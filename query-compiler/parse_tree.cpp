@@ -83,8 +83,6 @@ void join_Operator::produce() {
 	_join1->joinOp_num = num_hashOp++;
 	indent();
 	fprintf(qcode_fp,"HashTable hash_map_%d;\n", _join1->joinOp_num); 
-	indent();
-	fprintf(qcode_fp,"HashTable::accessor hash_map_%d_acc;\n", _join1->joinOp_num); 
 	l_input->produce();
 	r_input->produce();
 }
@@ -103,7 +101,7 @@ void join_Operator::consume() {
 		indent();
 		fprintf(qcode_fp, "//generate hash table here\n");
 		indent();
-		fprintf(qcode_fp, "hash_map_%d.insert(make_pair(%s_vect[i].%s, %s_vect[i].tuple_id));\n", _join1->joinOp_num, l_input->table_name.c_str(), _join1->hash_key_field.c_str(), l_input->table_name.c_str());
+		fprintf(qcode_fp, "hash_map_%d.insert(%s_vect[i].%s, %s_vect[i].tuple_id);\n", _join1->joinOp_num, l_input->table_name.c_str(), _join1->hash_key_field.c_str(), l_input->table_name.c_str());
 		_join1->l_input_consumed = true;
 	}
 	else {
@@ -133,20 +131,7 @@ void join_Operator::consume() {
 			fprintf(qcode_fp, "{\n");
 			open_braces++;
 			indent();
-			fprintf(qcode_fp, "hash_map_%d.find(hash_map_%d_acc, %s_vect[i].%s);\n", _join1->joinOp_num, _join1->joinOp_num, r_input->table_name.c_str(), hashed_pred.pred_l_operand.c_str());
-			indent();
-			fprintf(qcode_fp, "%s* %s_iter=&%s_vect.at(hash_map_%d_acc->second);\n", l_input->table_name.c_str(), l_input->table_name.c_str(), l_input->table_name.c_str(), _join1->joinOp_num);
-			//fprintf(qcode_fp, "%s* %s_iter=&%s_vect.at(hash_map_%d.at(%s_iter->%s));\n", l_input->table_name.c_str(), l_input->table_name.c_str(), l_input->table_name.c_str(), _join1->joinOp_num, r_input->table_name.c_str(), hashed_pred.pred_l_operand.c_str());
-			/*
-			indent();
-			fprintf(qcode_fp, "if(%s_iter == %s_vect.end()) {\n", l_input->table_name.c_str(), l_input->table_name.c_str());
-			open_braces++;
-			indent();
-			fprintf(qcode_fp, "continue;\n");
-			open_braces--;
-			indent();
-			fprintf(qcode_fp, "}\n");
-			*/
+			fprintf(qcode_fp, "%s* %s_iter=&%s_vect.at(hash_map_%d.find(%s_vect[i].%s));\n", l_input->table_name.c_str(), l_input->table_name.c_str(), l_input->table_name.c_str(), _join1->joinOp_num, r_input->table_name.c_str(), hashed_pred.pred_l_operand.c_str());
 			consumer->consume();
 			open_braces--;
 			indent();
@@ -155,16 +140,7 @@ void join_Operator::consume() {
 		else {
 			indent();
 			fprintf(qcode_fp, "vector<%s>::iterator %s_iter=%s_vect.at(hash_map_%d.at(%s));\n", l_input->table_name.c_str(), l_input->table_name.c_str(), l_input->table_name.c_str(), _join1->joinOp_num, hashed_pred.pred_l_operand.c_str());
-			/*
-			indent();
-			fprintf(qcode_fp, "if(%s_iter == %s_vect.end()) {\n", l_input->table_name.c_str(), l_input->table_name.c_str());
-			open_braces++;
-			indent();
-			fprintf(qcode_fp, "continue;\n");
-			open_braces--;
-			indent();
-			fprintf(qcode_fp, "}\n");
-			*/
+			
 			consumer->consume();
 		}
 	}
